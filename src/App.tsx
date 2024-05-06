@@ -1,52 +1,48 @@
-// App.tsx
 import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import SpellList from "./components/SpellList";
 import SpellDetails from "./components/SpellDetails";
 import Favorites from "./components/Favorites";
 import Header from "./components/Header";
-
-// Interface for Spell omitted for brevity
+import { fetchSpells } from "./api/spellApi"; // Import the fetchSpells function
+import { fetchSpellDetails } from "./api/spellApi"; // Import the fetchSpellDetails function
+import SpellBook from "./components/SpellBook";
 
 function App(): JSX.Element {
   const [spells, setSpells] = useState<Spell[]>([]);
   const [favorites, setFavorites] = useState<string[]>([]);
   const [selectedSpell, setSelectedSpell] = useState<Spell | null>(null);
-
+  const [favoriteCount, setFavoriteCount] = useState<number>(0);
   useEffect(() => {
-    fetchSpells();
+    fetchSpellData();
+    updateFavoriteCount();
   }, []);
 
-  const fetchSpells = async () => {
-    try {
-      const response = await axios.get<{ results: Spell[] }>(
-        "https://www.dnd5eapi.co/api/spells"
-      );
-      setSpells(response.data.results);
-    } catch (error) {
-      console.error("Error fetching spells:", error);
+  const fetchSpellData = async () => {
+    const spellsData = await fetchSpells();
+    setSpells(spellsData);
+  };
+
+  const updateFavoriteCount = () => {
+    const storedFavorites = localStorage.getItem("favorites");
+    if (storedFavorites) {
+      const favoriteIndexes = storedFavorites.split(",");
+      setFavoriteCount(favoriteIndexes.length);
     }
   };
 
   const toggleFavorite = (spellIndex: string) => {
     if (favorites.includes(spellIndex)) {
       setFavorites(favorites.filter((index) => index !== spellIndex));
+      setFavoriteCount((prevCount) => prevCount - 1); // Decrease favorite count when removing from favorites
     } else {
       setFavorites([...favorites, spellIndex]);
+      setFavoriteCount((prevCount) => prevCount + 1); // Increase favorite count when adding to favorites
     }
   };
-
   const handleSpellClick = async (spellIndex: string) => {
-    try {
-      const response = await axios.get<Spell>(
-        `https://www.dnd5eapi.co/api/spells/${spellIndex}`
-      );
-      console.log(response.data);
-      setSelectedSpell(response.data);
-    } catch (error) {
-      console.error(`Error fetching spell ${spellIndex}:`, error);
-    }
+    const spellDetails = await fetchSpellDetails(spellIndex);
+    setSelectedSpell(spellDetails);
   };
 
   const closeSpellDetails = () => {
@@ -56,9 +52,9 @@ function App(): JSX.Element {
   return (
     <Router>
       <div className="container mx-auto mt-8">
-        <Header />
+        <Header favoriteCount={favoriteCount} />
         <Routes>
-          <Route
+          {/* <Route
             path="/"
             element={
               <SpellList
@@ -68,7 +64,7 @@ function App(): JSX.Element {
                 handleSpellClick={handleSpellClick}
               />
             }
-          />
+          /> */}
           <Route
             path="/favorites"
             element={
@@ -78,12 +74,15 @@ function App(): JSX.Element {
               />
             }
           />
+          <Route path="/spells/:spellIndex" element={<SpellDetails />} />
           <Route
-            path="/spells/:spellIndex"
+            path="/"
             element={
-              <SpellDetails
-                selectedSpell={selectedSpell}
-                closeSpellDetails={closeSpellDetails}
+              <SpellBook
+                spells={spells}
+                toggleFavorite={toggleFavorite}
+                favorites={favorites}
+                handleSpellClick={handleSpellClick}
               />
             }
           />

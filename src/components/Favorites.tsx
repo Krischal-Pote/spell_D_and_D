@@ -1,31 +1,29 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import Loader from "./Loader";
 
 interface Props {
-  favorites: any[];
   handleSpellClick: (index: string) => void;
 }
 
-const Favorites: React.FC<Props> = ({ favorites, handleSpellClick }) => {
+const Favorites: React.FC<Props> = ({ handleSpellClick }) => {
+  const [favorites, setFavorites] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setLoading(true);
-    const timeout = setTimeout(() => {
-      setLoading(false);
-    }, 1000);
-
-    return () => clearTimeout(timeout);
-  }, [favorites]);
+    // Load favorites from localStorage
+    const storedFavorites = localStorage.getItem("favorites");
+    if (storedFavorites) {
+      const favoriteIndexes = storedFavorites.split(",");
+      setFavorites(favoriteIndexes);
+    }
+    setLoading(false);
+  }, []);
 
   return (
     <div>
       {loading ? (
-        <div className="text-center my-8">
-          <div className="spinner-border text-purple-500" role="status">
-            <span className="visually-hidden">Loading...</span>
-          </div>
-        </div>
+        <Loader />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {favorites.map((favoriteIndex: string) => (
