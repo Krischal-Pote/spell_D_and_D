@@ -4,16 +4,19 @@ import SpellList from "./components/SpellList";
 import SpellDetails from "./components/SpellDetails";
 import Favorites from "./components/Favorites";
 import Header from "./components/Header";
-import { fetchSpells } from "./api/spellApi"; // Import the fetchSpells function
-import { fetchSpellDetails } from "./api/spellApi"; // Import the fetchSpellDetails function
+import { fetchSpells } from "./api/spellApi";
+import { fetchSpellDetails } from "./api/spellApi";
 import SpellBook from "./components/SpellBook";
 
 function App(): JSX.Element {
   const [spells, setSpells] = useState<Spell[]>([]);
-  const [favorites, setFavorites] = useState<string[]>([]);
+  const [favorites, setFavorites] = useState<string[]>(
+    JSON.parse(localStorage.getItem("favorites") || "[]") || []
+  );
   const [selectedSpell, setSelectedSpell] = useState<Spell | null>(null);
   const [favoriteCount, setFavoriteCount] = useState<number>(0);
   const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     fetchSpellData();
     updateFavoriteCount();
@@ -26,6 +29,7 @@ function App(): JSX.Element {
       const spellsData = await fetchSpells();
       setLoading(false);
       setSpells(spellsData);
+      // updateFavoriteCount();
     } catch (err) {
       setLoading(false);
     }
@@ -36,26 +40,37 @@ function App(): JSX.Element {
     if (storedFavorites) {
       const favoriteIndexes = storedFavorites.split(",");
       setFavoriteCount(favoriteIndexes.length);
+    } else {
+      setFavoriteCount(0);
     }
   };
 
   const toggleFavorite = (spellIndex: string) => {
     if (favorites.includes(spellIndex)) {
       setFavorites(favorites.filter((index) => index !== spellIndex));
-      setFavoriteCount((prevCount) => prevCount - 1); // Decrease favorite count when removing from favorites
+      setFavoriteCount((prevCount) => prevCount - 1);
+      localStorage.setItem(
+        "favorites",
+        JSON.stringify(favorites.filter((index) => index !== spellIndex))
+      );
     } else {
       setFavorites([...favorites, spellIndex]);
-      setFavoriteCount((prevCount) => prevCount + 1); // Increase favorite count when adding to favorites
+      setFavoriteCount((prevCount) => prevCount + 1);
+      localStorage.setItem(
+        "favorites",
+        JSON.stringify([...favorites, spellIndex])
+      );
     }
   };
+
   const handleSpellClick = async (spellIndex: string) => {
     const spellDetails = await fetchSpellDetails(spellIndex);
     setSelectedSpell(spellDetails);
   };
 
-  const closeSpellDetails = () => {
-    setSelectedSpell(null);
-  };
+  // const closeSpellDetails = () => {
+  //   setSelectedSpell(null);
+  // };
 
   return (
     <Router>
@@ -92,6 +107,7 @@ function App(): JSX.Element {
                 favorites={favorites}
                 handleSpellClick={handleSpellClick}
                 mainLoading={loading}
+                favoriteCount={favoriteCount}
               />
             }
           />

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Pagination from "./Pagination";
 import Loader from "./Loader";
 import { fetchSpellDetails } from "../api/spellApi";
@@ -17,6 +17,7 @@ const SpellBook: React.FC<{ spells: Spell[] }> = ({
   favorites,
   handleSpellClick,
   mainLoading,
+  favoriteCount,
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(24);
@@ -24,18 +25,20 @@ const SpellBook: React.FC<{ spells: Spell[] }> = ({
   const [selectedSpellsDetails, setSelectedSpellsDetails] = useState<any[]>([]);
 
   useEffect(() => {
-    const storedFavorites = localStorage.getItem("favorites");
-    if (storedFavorites) {
-      const favoriteIndexes = storedFavorites.split(",");
-      favoriteIndexes.forEach((index) => {
-        toggleFavorite(index);
-      });
-    }
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem("favorites", favorites.join(","));
+    const storedFavorites = JSON.parse(
+      localStorage.getItem("favorites") || "[]"
+    );
+    // console.log(storedFavorites);
+    // if (storedFavorites) {
+    //   storedFavorites.forEach((index) => {
+    //     toggleFavorite(index);
+    //   });
+    // }
   }, [favorites]);
+
+  // useEffect(() => {
+  //   localStorage.setItem("favorites", JSON.stringify(favorites));
+  // }, [favorites]);
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;

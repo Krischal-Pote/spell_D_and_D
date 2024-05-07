@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import Loader from "./Loader";
 
 interface Props {
   handleSpellClick: (index: string) => void;
@@ -11,10 +10,11 @@ const Favorites: React.FC<Props> = ({ handleSpellClick }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const storedFavorites = localStorage.getItem("favorites");
+    const storedFavorites = JSON.parse(
+      localStorage.getItem("favorites") || "[]"
+    );
     if (storedFavorites) {
-      const favoriteIndexes = storedFavorites.split(",");
-      setFavorites(favoriteIndexes);
+      setFavorites(storedFavorites);
     }
     setLoading(false);
   }, []);
