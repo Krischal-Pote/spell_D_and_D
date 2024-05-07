@@ -3,4 +3,5 @@
 ## Usage
 
 - First, install the required npm packages
-- To run the project, use the following command
+- To run the project, use the following command:
+  npm run dev
