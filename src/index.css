@@ -31,14 +31,14 @@
   background-size: 2em 2em;
   background-color: #232323;
   color: white;
-  transition: transform 2s;
+  transition: transform 1.5s;
 }
 
 .book-cover::before {
   content: "";
   position: absolute;
   width: 20px;
-  left: 20px; /* Adjusted to left */
+  left: 0px;
   top: 0;
   bottom: 0;
   background-color: #b11509;

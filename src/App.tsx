@@ -13,14 +13,22 @@ function App(): JSX.Element {
   const [favorites, setFavorites] = useState<string[]>([]);
   const [selectedSpell, setSelectedSpell] = useState<Spell | null>(null);
   const [favoriteCount, setFavoriteCount] = useState<number>(0);
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
     fetchSpellData();
     updateFavoriteCount();
   }, []);
 
   const fetchSpellData = async () => {
-    const spellsData = await fetchSpells();
-    setSpells(spellsData);
+    try {
+      setLoading(true);
+
+      const spellsData = await fetchSpells();
+      setLoading(false);
+      setSpells(spellsData);
+    } catch (err) {
+      setLoading(false);
+    }
   };
 
   const updateFavoriteCount = () => {
@@ -83,6 +91,7 @@ function App(): JSX.Element {
                 toggleFavorite={toggleFavorite}
                 favorites={favorites}
                 handleSpellClick={handleSpellClick}
+                mainLoading={loading}
               />
             }
           />

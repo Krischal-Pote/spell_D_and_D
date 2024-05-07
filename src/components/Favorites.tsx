@@ -11,7 +11,6 @@ const Favorites: React.FC<Props> = ({ handleSpellClick }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Load favorites from localStorage
     const storedFavorites = localStorage.getItem("favorites");
     if (storedFavorites) {
       const favoriteIndexes = storedFavorites.split(",");
@@ -22,8 +21,8 @@ const Favorites: React.FC<Props> = ({ handleSpellClick }) => {
 
   return (
     <div>
-      {loading ? (
-        <Loader />
+      {favorites.length === 0 ? (
+        <p>No favorites yet.</p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {favorites.map((favoriteIndex: string) => (

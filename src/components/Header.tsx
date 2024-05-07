@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 import Badge from "@mui/material/Badge";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
@@ -7,7 +7,9 @@ interface Props {
   favoriteCount: number;
 }
 
-const Header: React.FC = ({ favoriteCount }) => {
+const Header: React.FC<Props> = ({ favoriteCount }) => {
+  const displayFavoriteCount = Math.max(favoriteCount, 0);
+
   return (
     <header className="bg-gray-800 text-white py-4 px-4 mb-4">
       <div className="container mx-auto flex flex-col sm:flex-row justify-between items-center">
@@ -17,7 +19,7 @@ const Header: React.FC = ({ favoriteCount }) => {
         <nav>
           <ul className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
             <li>
-              <Badge badgeContent={favoriteCount} color="primary">
+              <Badge badgeContent={displayFavoriteCount} color="primary">
                 <Link to="/favorites" className="hover:text-gray-300">
                   <FavoriteBorderIcon />
                 </Link>

@@ -16,10 +16,11 @@ const SpellBook: React.FC<{ spells: Spell[] }> = ({
   toggleFavorite,
   favorites,
   handleSpellClick,
+  mainLoading,
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(24);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [selectedSpellsDetails, setSelectedSpellsDetails] = useState<any[]>([]);
 
   useEffect(() => {
@@ -42,21 +43,20 @@ const SpellBook: React.FC<{ spells: Spell[] }> = ({
 
   const paginate = (pageNumber: number) => {
     setCurrentPage(pageNumber);
-    fetchSpellDetails(pageNumber); // Use fetchSpellDetails instead of fetchSpellsDetails
+    fetchSpellDetails(pageNumber);
   };
 
-  useEffect(() => {
-    setLoading(true);
-    const timeout = setTimeout(() => {
-      setLoading(false);
-    }, 1500);
+  // useEffect(() => {
+  //   setLoading(true);
+  //   const timeout = setTimeout(() => {
+  //     setLoading(false);
+  //   }, 4000);
 
-    return () => clearTimeout(timeout);
-  }, []);
+  //   return () => clearTimeout(timeout);
+  // }, []);
 
   useEffect(() => {
     const fetchData = async () => {
-      // Rename fetchSpellsDetails to fetchData
       setLoading(true);
       try {
         const spellsToFetch = spells.slice(0, 50);
@@ -74,41 +74,53 @@ const SpellBook: React.FC<{ spells: Spell[] }> = ({
         setLoading(false);
       }
     };
-    fetchData(); // Call the renamed function
+    fetchData();
   }, [spells]);
+
+  if (mainLoading) {
+    return <Loader />;
+  }
+
   return (
-    <>
-      {loading ? (
-        <Loader />
-      ) : (
-        <>
-          <main className="flex flex-wrap justify-center">
-            {currentSpells.map((spell: any, index: number) => (
-              <div className="book mx-2 my-4" key={spell.index}>
-                <div className="book-cover flex justify-center items-center absolute z-9 text-center bg-gradient-to-r from-black via-black to-transparent">
-                  <div key={spell.index}>
-                    <h1 className="text-white text-4xl font-semibold">
-                      {spell?.name}
-                    </h1>
-                    <div className="separator"></div>
-                    {/* <h2>by Virginia Woolf</h2> */}
-                  </div>
+    <div>
+      <div>
+        <div className="flex flex-wrap justify-center">
+          {currentSpells.map((spell: any, index: number) => (
+            <div className="book mx-2 my-4" key={spell.index}>
+              <div className="book-cover flex justify-center items-center absolute z-9 text-center bg-gradient-to-r from-black via-black to-transparent">
+                <div key={spell.index}>
+                  <h1 className="text-white text-4xl font-semibold">
+                    {spell?.name}
+                  </h1>
+                  <div className="separator"></div>
                 </div>
-                <div className="book-content transform scale-90 translate-y-30 bg-white">
-                  <div className="flex justify-between p-2">
-                    <h2 className="text-2xl font-semibold  text-red-600">
-                      {selectedSpellsDetails[index]?.name}
-                    </h2>
-                    <button onClick={() => toggleFavorite(spell.index)}>
-                      {favorites.includes(spell.index) ? (
-                        <FavoriteIcon />
-                      ) : (
-                        <>
-                          <FavoriteBorderIcon />
-                        </>
-                      )}
-                    </button>
-                  </div>
+              </div>
+              <div className="book-content transform scale-90 translate-y-30 bg-white">
+                <div className="flex justify-between p-2">
+                  <h2 className="text-2xl font-semibold  text-red-600">
+                    {selectedSpellsDetails[index]?.name}
+                  </h2>
+                  <button
+                    onClick={() => toggleFavorite(spell.index)}
+                    title="Add Favorite"
+                    className="mt-[-5px]"
+                  >
+                    {favorites.includes(spell.index) ? (
+                      <FavoriteIcon
+                        sx={{
+                          fill: "red",
+                        }}
+                      />
+                    ) : (
+                      <>
+                        <FavoriteBorderIcon />
+                      </>
+                    )}
+                  </button>
+                </div>
+                {loading ? (
+                  <Loader />
+                ) : (
                   <div className="text-gray-600">
                     <p>{selectedSpellsDetails[index]?.desc}</p>
                     <p>Range: {selectedSpellsDetails[index]?.range}</p>
@@ -151,18 +163,18 @@ const SpellBook: React.FC<{ spells: Spell[] }> = ({
                         .join(", ")}
                     </p>
                   </div>
-                </div>
+                )}
               </div>
-            ))}
-          </main>
-          <Pagination
-            currentPage={currentPage}
-            totalPages={Math.ceil(spells.length / itemsPerPage)}
-            paginate={paginate}
-          />
-        </>
-      )}
-    </>
+            </div>
+          ))}
+        </div>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={Math.ceil(spells.length / itemsPerPage)}
+          paginate={paginate}
+        />
+      </div>
+    </div>
   );
 };
 

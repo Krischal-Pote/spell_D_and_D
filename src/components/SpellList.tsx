@@ -17,7 +17,7 @@ const SpellList: React.FC<Props> = ({
   handleSpellClick,
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(21); // Updated to 21 items per page
+  const [itemsPerPage] = useState(21);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
